@@ -1,0 +1,8 @@
+eln-cache/
+etc/
+straight/
+var/
+.last-package-update-day
+config.org
+init_com.el
+early-init.el
