@@ -1,0 +1,6 @@
+eln-cache/
+etc/
+elpaca/
+config.org
+var/
+*.~undo-tree~

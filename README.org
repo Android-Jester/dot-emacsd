@@ -1,0 +1,5 @@
+#+title: Public README.org
+* Introduction
+This is a basic emacs setup made by me, motivated by [[https://github.com/larstvei/dot-emacs][larstvei dot-emacs repo]] and [[ https://github.com/daviwil/emacs-from-scratch][System Crafters Emacs From Scratch]], it contains the necessary tools for basic stuffs with emacs.
+The package manager used here is the [[https://github.com/progfolio/elpaca][Elpaca]] package manager which does this well with building packages asynchronously if you ignore some conflicting packages and thus this is why the packages are installed first before any other configurations are done 
+
