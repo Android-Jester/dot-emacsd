@@ -1,4 +1,5 @@
 ;; Some changes to make it more personalized
+(load-theme 'tango-dark)
 (setq warning-minimum-level :error
 	  ;; frame-title-format '("Jester's Emacs")
 	  ring-bell-function 'ignore
@@ -33,7 +34,7 @@
 
 (global-auto-revert-mode)
 
-
+(setq native-comp-always-compile t)
 (defvar perm/default-font-size 115)
 
 ;; Set Main Face Attribute
