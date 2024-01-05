@@ -30,60 +30,33 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 						 ("melpa-stable" . "https://stable.melpa.org/packages/")
 						 ("org" . "https://orgmode.org/elpa/")
 						 ("elpa" . "https://elpa.gnu.org/packages/")))
-(defvar elpaca-installer-version 0.6)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-							  :ref nil
-							  :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-							  :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-	   (build (expand-file-name "elpaca/" elpaca-builds-directory))
-	   (order (cdr elpaca-order))
-	   (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-	(make-directory repo t)
-	(when (< emacs-major-version 28) (require 'subr-x))
-	(condition-case-unless-debug err
-		(if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-				 ((zerop (call-process "git" nil buffer t "clone"
-									   (plist-get order :repo) repo)))
-				 ((zerop (call-process "git" nil buffer t "checkout"
-									   (or (plist-get order :ref) "--"))))
-				 (emacs (concat invocation-directory invocation-name))
-				 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-									   "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-				 ((require 'elpaca))
-				 ((elpaca-generate-autoloads "elpaca" repo)))
-			(progn (message "%s" (buffer-string)) (kill-buffer buffer))
-		  (error "%s" (with-current-buffer buffer (buffer-string))))
-	  ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-	(require 'elpaca)
-	(elpaca-generate-autoloads "elpaca" repo)
-	(load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
 
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable :elpaca use-package keyword.
-  (elpaca-use-package-mode)
-  ;; Assume :elpaca t unless otherwise specified.
-  (setq elpaca-use-package-by-default t))
 
-;; Block until current queue processed.
-(elpaca-wait);
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
+(setq straight-use-package-by-default t)
+(straight-use-package 'use-package)
 ;;  ------------------------------------------------------------------------------
 ;;; Keymaps
 
 (use-package evil
   :demand t)
 
-(use-package which-key
+(use-package which-key  
   :demand t)
 
 (use-package general
@@ -97,56 +70,76 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
   :after evil)
 
 (use-package undo-tree)
-(elpaca-wait)
-;;  ------------------------------------------------------------------------------
+
 ;;; UI elements
 (use-package doom-themes)
 (use-package doom-modeline)
 (use-package all-the-icons)
 (use-package evil-anzu)
 (use-package dashboard)
-(elpaca-wait)
+
 ;;  ------------------------------------------------------------------------------
 ;;; Search and browser buffer packages
-(use-package ivy)
-(use-package counsel)
-(use-package amx)
+;; (use-package ivy)
+;; (use-package counsel)
+;; (use-package amx)
 
-(use-package ivy-rich
-  :after (ivy counsel))
+;; (use-package ivy-rich
+;;   :after (ivy counsel))
 
-(use-package ivy-prescient)
+;; (use-package ivy-prescient)
 
-(use-package nerd-icons-ivy-rich
-  :after (ivy-rich ivy counsel))
-(elpaca-wait)
+;; (use-package nerd-icons-ivy-rich
+;;   :after (ivy-rich ivy counsel))
+(use-package vertico
+  :custom
+  (vertico-count 13)
+  (vertico-resize t)
+  (vertico-cycle nil)
+  :straight (vertico :files (:defaults "extensions/**")
+					 :includes (vertico-indexed
+                                vertico-mouse
+                                vertico-quick
+                                vertico-repeat
+                                vertico-reverse
+                                vertico-directory
+                                vertico-multiform
+                                )))
+(use-package vertico-prescient)
+(use-package vertico-posframe)
+(use-package consult)
+(use-package marginalia
+  :after vertico)
+(use-package orderless)
+(use-package all-the-icons-completion)
+
 ;;  ------------------------------------------------------------------------------
 ;;; Helpful descriptions
-(use-package helpful
-  :custom
-  (counsel-describe-function #'helpful-callable)
-  (counsel-describe-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-(elpaca-wait)
+(use-package helpful)
+;; :custom
+;; (counsel-describe-function #'helpful-callable)
+;; (counsel-describe-function #'helpful-variable)
+;; :bind
+;; ([remap describe-function] . counsel-describe-function)
+;; ([remap describe-command] . helpful-command)
+;; ([remap describe-variable] . counsel-describe-variable)
+;; ([remap describe-key] . helpful-key))
+
 ;;  ------------------------------------------------------------------------------
 ;;; Folding
-(use-package ts-fold :elpaca (ts-fold
-							  :host github
-							  :repo "emacs-tree-sitter/ts-fold"))
+(use-package ts-fold :straight (ts-fold
+ 								:host github
+ 								:repo "emacs-tree-sitter/ts-fold"))
 
-(use-package ts-fold :elpaca (ts-fold-indicators
-							  :host github
-							  :repo "emacs-tree-sitter/ts-fold"))
+(use-package ts-fold :straight (ts-fold-indicators
+ 								:host github
+ 								:repo "emacs-tree-sitter/ts-fold"))
 (use-package origami)
-(elpaca-wait)
+
 ;;  ------------------------------------------------------------------------------
 ;;; File Browsers
 (use-package dired
-  :elpaca nil
+  :straight nil
   :commands (dired dired-jump)
   :custom ((dired-listing-switches "-agho --group-directories-first")))
 
@@ -166,12 +159,11 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 (use-package lsp-treemacs)
 (use-package treemacs-icons-dired)
 (use-package no-littering)
-(elpaca-wait)
+
 ;;  ------------------------------------------------------------------------------
 ;;; buffers
 (use-package ibuffer-projectile)
 (use-package ibuffer-vc)
-(elpaca-wait)
 
 ;;  ------------------------------------------------------------------------------
 ;;; Project handling
@@ -183,9 +175,10 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 
 (use-package treemacs-projectile
   :after (treemacs projectile))
-(use-package seq)
+;;(use-package seq)
 (use-package magit)
-(elpaca-wait)
+
+
 ;;  ------------------------------------------------------------------------------
 ;;; Documenting stuff with org-moe
 (use-package org)
@@ -194,18 +187,18 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 (use-package org-fancy-priorities)
 
 (use-package org-appear
-  :elpaca (org-appear :host github :repo "awth13/org-appear"))
+  :straight (org-appear :host github :repo "awth13/org-appear"))
 
 (use-package evil-org)
 (use-package toc-org)
 (use-package org-journal)
-
+;; (use-package org-roam)
 (use-package company-org-block
   :after (org company))
 
 
 (use-package markdown-mode)
-(elpaca-wait)
+
 ;;  ------------------------------------------------------------------------------
 ;;; Some Programming packages
 
@@ -216,7 +209,7 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 (use-package flycheck)
 (use-package flycheck-package)
 (use-package yasnippet)
-(use-package doom-snippets :elpaca (doom-snippets :host github :repo "doomemacs/snippets" :files ("*.el" "*")))
+;; (use-package doom-snippets :elpaca (doom-snippets :host github :repo "doomemacs/snippets" :files ("*.el" "*")))
 
 (use-package company
   :after lsp)
@@ -227,12 +220,12 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 (use-package company-irony)
 (use-package company-irony-c-headers)
 (use-package yasnippet-snippets)
-(elpaca-wait)
+(use-package company-quickhelp)
 ;;  ------------------------------------------------------------------------------
 ;;; Programming languages
 
 ;; emacs lisp
-(use-package elec-pair :elpaca nil)
+(use-package elec-pair :straight nil)
 (use-package highlight-quoted)
 (use-package elisp-def)
 
@@ -243,6 +236,7 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 (use-package hover)
 
 ;; C/C++
+
 (use-package cmake-mode)
 
 ;; shell
@@ -258,22 +252,19 @@ t;;; packages.el --- The list of packages for lazy loading  -*- lexical-binding:
 
 ;; Zig
 (use-package zig-mode)
-(elpaca-wait)
+
 
 
 ;;  ------------------------------------------------------------------------------
 ;;; Terminal
 (use-package vterm)
-;; (vterm-q)
-(elpaca-wait)
+
 (use-package vterm-toggle
   :after vterm)
 
 ;;  ------------------------------------------------------------------------------
 ;;; Search and browser buffer packages
 
-
-(elpaca-wait)
 
 (provide 'packages)
 ;;; packages.el ends here

@@ -91,19 +91,20 @@
 
 ;; Browsers
 (perm/leader
-  "s" '(swiper :wk "[s]wiper Search"))
+  "s" '(consult-line :wk "[s]wiper Search"))
 
 ;; Helpful
 (perm/leader
   "h" '(:wk "[H]elpful Commands")
-  "h f" '(counsel-describe-function :wk "[H]elpful describe [F]unction")
+  "h a" '(apropos-command :wk "All Description")
+  "h f" '(describe-function :wk "[H]elpful describe [F]unction")
   "h k" '(describe-key :wk "[H]elpful Describe [k]ey")
   "h K" '(describe-keymap :wk "[H]elpful Describe [K]eymap")
-  "h v" '(counsel-describe-variable :wk "[H]elpful Describe [v]ariable"))
+  "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
 
 ;; Buffers
 (perm/leader
-  "b" '(ibuffer :wk "[B]uffer List"))
+  "b" '(consult-buffer :wk "[B]uffer List"))
 
 
 (perm/leader

@@ -1,6 +1,8 @@
 eln-cache/
 etc/
+straight/
 elpaca/
 config.org
 var/
+/#*
 *.~undo-tree~

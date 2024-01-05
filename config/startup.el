@@ -1,4 +1,5 @@
 ;; Some changes to make it more personalized
+(load-theme 'tango-dark)
 (setq warning-minimum-level :error
 	  ;; frame-title-format '("Jester's Emacs")
 	  ring-bell-function 'ignore
