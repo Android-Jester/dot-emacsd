@@ -64,7 +64,7 @@
 (use-package corfu
   :straight t
   :custom
-  (corfu-auto t)
+  (corfu-auto nil)
   (corfu-cycle t)
   :init (global-corfu-mode))
 
@@ -72,6 +72,24 @@
 (use-package cape
   :straight t
   :after corfu)
+
+
+
+;; (use-package corfu-candidate-overlay
+;;   :straight (:type git
+;;                    :repo "https://code.bsdgeek.org/adam/corfu-candidate-overlay"
+;;                    :files (:defaults "*.el"))
+;;   :after corfu
+;;   :config
+;;   ;; enable corfu-candidate-overlay mode globally
+;;   ;; this relies on having corfu-auto set to nil
+;;   (corfu-candidate-overlay-mode +1))
+;; bind Ctrl + TAB to trigger the completion popup of corfu
+;; (global-set-key (kbd "C-<tab>") 'completion-at-point)
+;; bind Ctrl + Shift + Tab to trigger completion of the first candidate
+;; (keybing <iso-lefttab> may not work for your keyboard model)
+;; (global-set-key (kbd "C-<iso-lefttab>") 'corfu-candidate-overlay-complete-at-point))
+
 
 (provide 'dev)
 ;;; dev.el ends here

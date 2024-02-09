@@ -37,15 +37,15 @@
   (tool-bar-mode 0)
   (menu-bar-mode 0)
   (dolist (mode '(
-		  prog-mode-hook))
+		          prog-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode))))
   (delete-selection-mode)
   (setq create-lockfiles nil
-	make-backup-files nil
-	native-comp-always-compile t)
+	    make-backup-files nil
+	    native-comp-always-compile t)
   (global-auto-revert-mode)
-
-  (defvar conf/default-font-size 110)
+  (menu-bar--display-line-numbers-mode-relative)
+  (defvar conf/default-font-size 115)
   (defvar conf/font "JetBrains Mono")
   
   ;; Set Main Face Attribute

@@ -28,22 +28,26 @@
   :straight t
   :config
   (setq evil-want-integration t
-	evil-want-C-u-scroll t
-	evil-want-C-i-jump nil
-	evil-ex-search-vim-style-regexp t
-	evil-ex-visual-char-range t
+	    evil-want-C-u-scroll t
+	    evil-want-C-i-jump nil 
+	    evil-ex-search-vim-style-regexp t
+	    evil-ex-visual-char-range t
         evil-mode-line-format 'nil
-	evil-symbol-word-search t
-	evil-default-cursor '+evil-default-cursor-fn
-	evil-normal-state-cursor 'box
-	evil-emacs-state-cursor  '(box +evil-emacs-cursor-fn)
-	evil-insert-state-cursor 'bar
-	evil-visual-state-cursor 'hollow
-	evil-ex-interactive-search-highlight 'selected-window
+	    evil-symbol-word-search t
+	    evil-default-cursor '+evil-default-cursor-fn
+	    evil-normal-state-cursor 'box
+	    evil-emacs-state-cursor  '(box +evil-emacs-cursor-fn)
+	    evil-insert-state-cursor 'bar
+	    evil-visual-state-cursor 'hollow
+	    evil-ex-interactive-search-highlight 'selected-window
         evil-kbd-macro-suppress-motion-error t)
+  (setq-default tab-width 4
+                indent-tabs-mode nil
+		        tab-always-indent t)
   (evil-mode)
   (define-key evil-insert-state-map (kbd "C-`") 'evil-normal-state)
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+  (define-key evil-insert-state-map (kbd "<backtab>") 'tab-to-tab-stop)
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
   (evil-set-initial-state 'messages-buffer-mode 'normal))
@@ -79,8 +83,8 @@
   :after (evil evil-collection evil-commentary)
   :init (general-evil-setup)
   :config (general-create-definer keys/leader
-	    :states '(normal visual emacs)
-	    :prefix "SPC"))
+	        :states '(normal visual emacs)
+	        :prefix "SPC"))
 
 ;;; ------------------------------------------------------------------------------------------------------------------------
         ;;; KeyMaps
@@ -149,8 +153,9 @@
   "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
 
 (evil-define-key 'insert 'prog-mode-map (kbd "C-SPC") #'completion-at-point)
-(evil-define-key 'insert 'corfu-mode-map (kbd "<tab>") #'corfu-next)
-(evil-define-key 'insert 'corfu-mode-map (kbd "<backtab>") #'corfu-previous)
+(eldoc-add-command #'corfu-insert)
+;;(evil-define-key 'insert 'corfu-map (kbd "<tab>") #'corfu-next)
+;;(evil-define-key 'insert 'corfu-map (kbd "<backtab>") #'corfu-previous)
 
 (keys/leader
   :keymaps 'eglot-mode-map
