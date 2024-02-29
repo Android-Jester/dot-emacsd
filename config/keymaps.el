@@ -84,7 +84,7 @@
   :init (general-evil-setup)
   :config (general-create-definer keys/leader
 	        :states '(normal visual emacs)
-	        :prefix "SPC"))
+	        :prefix "SPC")
 
 ;;; ------------------------------------------------------------------------------------------------------------------------
         ;;; KeyMaps
@@ -171,8 +171,7 @@
 
 (keys/leader
   "t" '(:wk "Toggleables")
-  "t t" '(vterm-toggle-cd :wk "Toggle Terminal"))
-
+  "t t" '(vterm-toggle-cd :wk "Toggle Terminal")))
 
 
 (provide 'keymaps)

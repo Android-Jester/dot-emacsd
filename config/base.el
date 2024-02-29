@@ -46,7 +46,7 @@
   (global-auto-revert-mode)
   (menu-bar--display-line-numbers-mode-relative)
   (defvar conf/default-font-size 115)
-  (defvar conf/font "JetBrains Mono")
+  (defvar conf/font "JetBrainsMono Nerd Font")
   
   ;; Set Main Face Attribute
   (set-face-attribute 'default nil :font conf/font :height conf/default-font-size)

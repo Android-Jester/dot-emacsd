@@ -3,7 +3,7 @@
 ;; Copyright (C) 2024  Duah Kwadwo Adjei
 
 ;; Author: Duah Kwadwo Adjei <duah14@outlook.com>
-;; Keywords: 
+;; Keywords:
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@
   :straight t
   :config
   (dashboard-setup-startup-hook)
+
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
   (setq dashboard-banner-logo-title nil)
   (setq dashboard-startup-banner 'official)

@@ -60,3 +60,5 @@
   ([remap describe-function] . helpful-function)
   ([remap describe-key] . helpful-key)
   ([remap describe-variable] . helpful-variable))
+
+(provide 'completers)
