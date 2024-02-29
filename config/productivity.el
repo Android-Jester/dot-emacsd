@@ -24,9 +24,9 @@
 
 ;;; Code:
 
-(use-package wakatime-mode
-  :straight t
-  :init (global-wakatime-mode))
+;; (use-package wakatime-mode
+;;   :straight t
+;;   :init (global-wakatime-mode))
 
 (provide 'productivity)
 ;;; productivity.el ends here

@@ -89,89 +89,121 @@
 ;;; ------------------------------------------------------------------------------------------------------------------------
         ;;; KeyMaps
 ;;; ------------------------------------------------------------------------------------------------------------------------
+  ;; (mapc 'global-unset-key '([left] [right] [up] [down]))
 
-(keys/leader
-  "e"   '(find-file :wk "Find File")
-  "d"   '(dired :wk "Find folder")
-  "w"   '(evil-window-map :wk "[w]indow"))
+  (define-minor-mode my-override-mode
+    "Overrides all major and minor mode keys" t)
 
-(keys/leader
-  "b"   '(:wk "Buffers")
-  "b b" '(consult-buffer :wk "Browse Buffers")
-  "b d" '(kill-buffer :wk "Kill Buffer")
-  "b i" '(ibuffer :wk "ibuffer")) 
+  (defvar my-override-map (make-sparse-keymap "my-override-map")
+    "Override all major and minor mode keys")
 
-(defun conf/init ()
-  (interactive)
-  (find-file (expand-file-name "init.el" user-emacs-directory)))
+  (add-to-list 'emulation-mode-map-alists
+               `((my-override-mode . ,my-override-map)))
 
-(keys/leader
-  "f" '(:wk "Config Prefix")
-  "f e" '(conf/init :wk "Open Init.el"))
+  (evil-define-key '(visual normal emacs) my-override-map (kbd "<left>")
+    (lambda ()
+      (interactive)
+      (message "Use Vim keys: h for Left")))
 
+  (evil-define-key '(visual normal emacs)my-override-map (kbd "<right>")
+    (lambda ()
+      (interactive)
+      (message "Use Vim keys: l for Right")))
 
-(defun conf/open-org-directory ()
-  (interactive)
-  (dired org-directory))
+  (evil-define-key '(visual normal emacs) my-override-map (kbd "<up>")
+    (lambda ()
+      (interactive)
+      (message "Use Vim keys: k for Up")))
 
-(keys/leader
-  "o" '(:wk "OrgMode Stuffs")
-  "o A" '(org-agenda :wk "Org Agenda")
-  "o o" '(conf/open-org-directory :wk "Org directory")
-  "o f j" '(org-journal-find-file :wk "Find Journal File")
-  "o j" '(org-journal-new-date-entry :wk "Org Journal Date Entry")
-  "f O" '(( lambda () (interactive) (find-file (expand-file-name "~/Notes"))) :wk "Personal Notes")
-  "f P" '(( lambda () (interactive) (find-file (expand-file-name "~/Org"))) :wk "Org Stuffs"))
+  (evil-define-key '(visual normal emacs) my-override-map (kbd "<down>")
+    (lambda ()
+      (interactive)
+      (message "Use Vim keys: j for Down")))
 
 
-(keys/leader
-  :keymap 'org-journal-mode-map
-  "o J" '(org-journal-previous-entry :wk "[O]rg [j]ournal previous entry"))
+  (evil-make-intercept-map my-override-map '(normal visual emacs))
+  (keys/leader
+    "e"   '(find-file :wk "Find File")
+    "d"   '(dired :wk "Find folder")
+    "w"   '(evil-window-map :wk "[w]indow"))
 
-(keys/leader
-  :keymaps 'org-mode-map
-  "o" '(:wk "OrgMode Stuffs")
-  "o e" '(org-edit-special :wk "Org src-block special edit")
-  "o c" '(org-toggle-checkbox :wk "Toggle Checkbox")
-  "o l" '(org-insert-link :wk "Insert Link"))
+  (keys/leader
+    "b"   '(:wk "Buffers")
+    "b b" '(consult-buffer :wk "Browse Buffers")
+    "b d" '(kill-buffer :wk "Kill Buffer")
+    "b i" '(ibuffer :wk "ibuffer")) 
 
-(keys/leader
-  :keymap 'projectile-mode-map
-  "p" '(:wk "Projects")
-  "p a" '(projectile-add-known-project :wk "Add Project")
-  "p p" '(projectile-switch-project :wk "Switch/open Project")
-  "p R" '(projectile-remove-current-project-from-known-projects :wk "Remove Current Project")
-  "p r" '(projectile-remove-known-project :wk "Remove Project")
-  "p P"  '(projectile-command-map :wk "projectile Commands"))
+  (defun conf/init ()
+    (interactive)
+    (find-file (expand-file-name "init.el" user-emacs-directory)))
 
-(keys/leader
-  "h" '(:wk "[H]elpful Commands")
-  "h a" '(apropos-command :wk "All Description")
-  "h f" '(describe-function :wk "[H]elpful describe [F]unction")
-  "h k" '(describe-key :wk "[H]elpful Describe [k]ey")
-  "h K" '(describe-keymap :wk "[H]elpful Describe [K]eymap")
-  "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
-
-(evil-define-key 'insert 'prog-mode-map (kbd "C-SPC") #'completion-at-point)
-(eldoc-add-command #'corfu-insert)
-;;(evil-define-key 'insert 'corfu-map (kbd "<tab>") #'corfu-next)
-;;(evil-define-key 'insert 'corfu-map (kbd "<backtab>") #'corfu-previous)
-
-(keys/leader
-  :keymaps 'eglot-mode-map
-  "c" '(:wk "Code")
-  "c c" '(compile :wk "Compile")
-  "c C" '(recompile :wk "Recompile")
-  "c a" '(eglot-code-actions :wk "Code Actions")
-  "c d" '(xref-find-definitions :wk "Find Definition")
-  "c D" '(eglot-find-typeDefinition :wk "Find Type Definition")
-  "c R" '(xref-find-references :wk "Find Implementations")
-  "c r" '(eglot-rename :wk "Rename Symbol"))
+  (keys/leader
+    "f" '(:wk "Config Prefix")
+    "f e" '(conf/init :wk "Open Init.el"))
 
 
-(keys/leader
-  "t" '(:wk "Toggleables")
-  "t t" '(vterm-toggle-cd :wk "Toggle Terminal")))
+  (defun conf/open-org-directory ()
+    (interactive)
+    (dired org-directory))
+
+  (keys/leader
+    "o" '(:wk "OrgMode Stuffs")
+    "o A" '(org-agenda :wk "Org Agenda")
+    "o o" '(conf/open-org-directory :wk "Org directory")
+    "o f j" '(org-journal-find-file :wk "Find Journal File")
+    "o j" '(org-journal-new-date-entry :wk "Org Journal Date Entry")
+    "f O" '(( lambda () (interactive) (find-file (expand-file-name "~/Notes"))) :wk "Personal Notes")
+    "f P" '(( lambda () (interactive) (find-file (expand-file-name "~/Org"))) :wk "Org Stuffs"))
+
+
+  (keys/leader
+    :keymap 'org-journal-mode-map
+    "o J" '(org-journal-previous-entry :wk "[O]rg [j]ournal previous entry"))
+
+  (keys/leader
+    :keymaps 'org-mode-map
+    "o" '(:wk "OrgMode Stuffs")
+    "o e" '(org-edit-special :wk "Org src-block special edit")
+    "o c" '(org-toggle-checkbox :wk "Toggle Checkbox")
+    "o l" '(org-insert-link :wk "Insert Link"))
+
+  (keys/leader
+    :keymap 'projectile-mode-map
+    "p" '(:wk "Projects")
+    "p a" '(projectile-add-known-project :wk "Add Project")
+    "p p" '(projectile-switch-project :wk "Switch/open Project")
+    "p R" '(projectile-remove-current-project-from-known-projects :wk "Remove Current Project")
+    "p r" '(projectile-remove-known-project :wk "Remove Project")
+    "p P"  '(projectile-command-map :wk "projectile Commands"))
+
+  (keys/leader
+    "h" '(:wk "[H]elpful Commands")
+    "h a" '(apropos-command :wk "All Description")
+    "h f" '(describe-function :wk "[H]elpful describe [F]unction")
+    "h k" '(describe-key :wk "[H]elpful Describe [k]ey")
+    "h K" '(describe-keymap :wk "[H]elpful Describe [K]eymap")
+    "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
+
+  (evil-define-key 'insert 'prog-mode-map (kbd "C-SPC") #'completion-at-point)
+  (eldoc-add-command #'corfu-insert)
+  ;;(evil-define-key 'insert 'corfu-map (kbd "<tab>") #'corfu-next)
+  ;;(evil-define-key 'insert 'corfu-map (kbd "<backtab>") #'corfu-previous)
+
+  (keys/leader
+    :keymaps 'eglot-mode-map
+    "c" '(:wk "Code")
+    "c c" '(compile :wk "Compile")
+    "c C" '(recompile :wk "Recompile")
+    "c a" '(eglot-code-actions :wk "Code Actions")
+    "c d" '(xref-find-definitions :wk "Find Definition")
+    "c D" '(eglot-find-typeDefinition :wk "Find Type Definition")
+    "c R" '(xref-find-references :wk "Find Implementations")
+    "c r" '(eglot-rename :wk "Rename Symbol"))
+
+
+  (keys/leader
+    "t" '(:wk "Toggleables")
+    "t t" '(vterm-toggle-cd :wk "Toggle Terminal")))
 
 
 (provide 'keymaps)
