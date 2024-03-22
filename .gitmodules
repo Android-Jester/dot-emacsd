@@ -1,0 +1,3 @@
+[submodule "local/doom-snippets"]
+	path = local/doom-snippets
+	url = https://github.com/doomemacs/snippets.git
