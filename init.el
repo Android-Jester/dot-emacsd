@@ -1,6 +1,7 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "local" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "local/doom-snippets" user-emacs-directory))
+
 ;;; Appearance
 (defun rc/get-default-font ()
   (cond
@@ -16,7 +17,6 @@
 (load-theme 'doom-one t)
 
 (setq doom-modeline-height 30
-      doom-modeline-height 35
       doom-modeline-total-line-number t
       display-time-default-load-average nil
       display-time-24hr-format t)
@@ -42,10 +42,12 @@
 (require 'doom-snippets)
 (yas-global-mode)
 (custom-set-variables
- '(corfu-auto t)
+ ;; '(corfu-auto t)
  '(corfu-cycle t))
 (add-to-list 'completion-at-point-functions #'yasnippet-capf)
 (add-to-list 'completion-at-point-functions #'cape-file)
+(add-to-list 'completion-at-point-functions #'cape-line)
+(add-to-list 'completion-at-point-functions #'cape-keyword)
 (eldoc-add-command #'corfu-insert)
 (global-corfu-mode)
 (corfu-prescient-mode)
@@ -64,6 +66,7 @@
 
 ;; KeyBinds
 (setq evil-want-keybinding nil)
+(custom-set-variables '(evil-undo-system 'undo-fu))
 (evil-mode)
 (evil-collection-init)
 (evil-commentary-mode 1)
@@ -73,7 +76,7 @@
 
 
 ;; programming
-(global-wakatime-mode 1)
+;; (global-wakatime-mode 1)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (add-hook 'prog-mode-hook #'eglot-ensure)
 (apheleia-global-mode)
@@ -154,7 +157,7 @@
       org-habit-graph-column 60)
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 (add-hook 'org-mode-hook #'toc-org-mode)
-
+(global-org-modern-mode)
 
 
 (define-key evil-insert-state-map (kbd "C-`") 'evil-normal-state)
@@ -168,58 +171,22 @@
   :prefix "SPC")
 
 
-(define-minor-mode my-override-mode
-  "Overrides all major and minor mode keys" t)
-
-(defvar my-override-map (make-sparse-keymap "my-override-map")
-  "Override all major and minor mode keys")
-
-(add-to-list 'emulation-mode-map-alists
-             `((my-override-mode . ,my-override-map)))
-
-(evil-define-key '(visual normal emacs) my-override-map (kbd "<left>")
-  (lambda ()
-    (interactive)
-    (message "Use Vim keys: h for Left")))
-
-(evil-define-key '(visual normal emacs) my-override-map (kbd "<right>")
-  (lambda ()
-    (interactive)
-    (message "Use Vim keys: l for Right")))
-
-(evil-define-key '(visual normal emacs) my-override-map (kbd "<up>")
-  (lambda ()
-    (interactive)
-    (message "Use Vim keys: k for Up")))
-
-(evil-define-key '(visual normal emacs) my-override-map (kbd "<down>")
-  (lambda ()
-    (interactive)
-    (message "Use Vim keys: j for Down")))
-
-
-(evil-make-intercept-map my-override-map '(normal visual emacs))
-
 
 
 (keys/leader
- "e"   '(find-file :wk "Find File")
- "d"   '(dired :wk "Find folder")
- "w"   '(evil-window-map :wk "[w]indow"))
+  "e"   '(find-file :wk "Find File")
+  "d"   '(dired :wk "Find folder")
+  "w"   '(evil-window-map :wk "[w]indow"))
 
 (keys/leader
- "b"   '(:wk "Buffers")
- "b b" '(consult-buffer :wk "Browse Buffers")
- "b d" '(kill-buffer :wk "Kill Buffer")
- "b i" '(ibuffer :wk "ibuffer")) 
-
-(defun conf/init ()
-  (interactive)
-  (find-file (expand-file-name "init.el" user-emacs-directory)))
+  "b"   '(:wk "Buffers")
+  "b b" '(consult-buffer :wk "Browse Buffers")
+  "b d" '(kill-buffer :wk "Kill Buffer")
+  "b i" '(ibuffer :wk "ibuffer")) 
 
 (keys/leader
- "f" '(:wk "Config Prefix")
- "f e" '(conf/init :wk "Open Init.el"))
+  "f" '(:wk "Config Prefix")
+  "f e" '((lambda () (interactive) (find-file (expand-file-name "init.el" user-emacs-directory))) :wk "Open Init.el"))
 
 
 (defun conf/open-org-directory ()
@@ -227,59 +194,60 @@
   (dired org-directory))
 
 (keys/leader
- "o" '(:wk "OrgMode Stuffs")
- "o A" '(org-agenda :wk "Org Agenda")
- "o o" '(conf/open-org-directory :wk "Org directory")
- "o f j" '(org-journal-find-file :wk "Find Journal File")
- "o j" '(org-journal-new-date-entry :wk "Org Journal Date Entry")
- "f O" '(( lambda () (interactive) (find-file (expand-file-name "~/Notes"))) :wk "Personal Notes")
- "f P" '(( lambda () (interactive) (find-file (expand-file-name "~/Org"))) :wk "Org Stuffs"))
+  "o" '(:wk "OrgMode Stuffs")
+  "o A" '(org-agenda :wk "Org Agenda")
+  "o o" '((lambda () (interactive) (dired org-directory)) :wk "Org directory")
+  "o f j" '(org-journal-find-file :wk "Find Journal File")
+  "o j" '(org-journal-new-date-entry :wk "Org Journal Date Entry")
+  "f O" '((lambda () (interactive) (find-file (expand-file-name "~/Notes"))) :wk "Personal Notes")
+  "f P" '((lambda () (interactive) (find-file (expand-file-name "~/Org"))) :wk "Org Stuffs")) 
 
 
 (keys/leader
- :keymap 'org-journal-mode-map
- "o J" '(org-journal-previous-entry :wk "[O]rg [j]ournal previous entry"))
+  :keymap 'org-journal-mode-map
+  "o J" '(org-journal-previous-entry :wk "[O]rg [j]ournal previous entry"))
 
 (keys/leader
- :keymaps 'org-mode-map
- "o" '(:wk "OrgMode Stuffs")
- "o e" '(org-edit-special :wk "Org src-block special edit")
- "o c" '(org-toggle-checkbox :wk "Toggle Checkbox")
- "o l" '(org-insert-link :wk "Insert Link"))
+  :keymaps 'org-mode-map
+  "o" '(:wk "OrgMode Stuffs")
+  "o e" '(org-edit-special :wk "Org src-block special edit")
+  "o c" '(org-toggle-checkbox :wk "Toggle Checkbox")
+  "o l" '(org-insert-link :wk "Insert Link"))
 
 (keys/leader
- :keymap 'projectile-mode-map
- "p" '(:wk "Projects")
- "p a" '(projectile-add-known-project :wk "Add Project")
- "p p" '(projectile-switch-project :wk "Switch/open Project")
- "p R" '(projectile-remove-current-project-from-known-projects :wk "Remove Current Project")
- "p r" '(projectile-remove-known-project :wk "Remove Project")
- "p P"  '(projectile-command-map :wk "projectile Commands"))
+  :keymap 'projectile-mode-map
+  "p" '(:wk "Projects")
+  "p a" '(projectile-add-known-project :wk "Add Project")
+  "p p" '(projectile-switch-project :wk "Switch/open Project")
+  "p R" '(projectile-remove-current-project-from-known-projects :wk "Remove Current Project")
+  "p r" '(projectile-remove-known-project :wk "Remove Project")
+  "p P"  '(projectile-command-map :wk "projectile Commands"))
 
 (keys/leader
- "h" '(:wk "[H]elpful Commands")
- "h a" '(apropos-command :wk "All Description")
- "h f" '(describe-function :wk "[H]elpful describe [F]unction")
- "h k" '(describe-key :wk "[H]elpful Describe [k]ey")
- "h K" '(describe-keymap :wk "[H]elpful Describe [K]eymap")
- "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
+  "h" '(:wk "[H]elpful Commands")
+  "h a" '(apropos-command :wk "All Description")
+  "h f" '(describe-function :wk "[H]elpful describe [F]unction")
+  "h k" '(describe-key :wk "[H]elpful Describe [k]ey")
+  "h K" '(describe-keymap :wk "[H]elpful Describe [K]eymap")
+  "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
 
 (evil-define-key 'insert 'prog-mode-map (kbd "C-SPC") #'completion-at-point)
 (evil-define-key 'insert 'corfu-map (kbd "<tab>") #'corfu-next)
 (evil-define-key 'insert 'corfu-map (kbd "<backtab>") #'corfu-previous)
 
 (keys/leader
- "c" '(:wk "Code")
- "c c" '(compile :wk "Compile")
- "c C" '(recompile :wk "Recompile")
- "c a" '(eglot-code-actions :wk "Code Actions")
- "c d" '(xref-find-definitions :wk "Find Definition")
- "c D" '(eglot-find-typeDefinition :wk "Find Type Definition")
- "c R" '(xref-find-references :wk "Find Implementations")
- "c r" '(eglot-rename :wk "Rename Symbol"))
+  "c" '(:wk "Code")
+  "c c" '(compile :wk "Compile")
+  "c C" '(recompile :wk "Recompile")
+  "c d" '(xref-find-definitions :wk "Find Definition")
+  "c R" '(xref-find-references :wk "Find Implementations")
+  :keymap 'eglot-mode-map
+  "c a" '(eglot-code-actions :wk "Code Actions")
+  "c D" '(eglot-find-typeDefinition :wk "Find Type Definition")
+  "c r" '(eglot-rename :wk "Rename Symbol"))
 
 
 (keys/leader
- "t" '(:wk "Toggleables")
- "t t" '(vterm-toggle-cd :wk "Toggle Terminal"))
+  "t" '(:wk "Toggleables")
+  "t t" '(vterm-toggle-cd :wk "Toggle Terminal"))
 
