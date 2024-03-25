@@ -1,7 +1,7 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "local" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "local/doom-snippets" user-emacs-directory))
-
+(load (expand-file-name "custom.el" user-emacs-directory))
 ;;; Appearance
 (defun rc/get-default-font ()
   (cond
@@ -9,7 +9,6 @@
    ((eq system-type 'gnu/linux) "JetBrainsMono Nerd Font-11")))
 
 (add-to-list 'default-frame-alist `(font . ,(rc/get-default-font)))
-
 
 
 (custom-set-variables '(display-line-numbers-type (quote relative)))
@@ -42,7 +41,7 @@
 (require 'doom-snippets)
 (yas-global-mode)
 (custom-set-variables
- ;; '(corfu-auto t)
+ '(corfu-auto t)
  '(corfu-cycle t))
 (add-to-list 'completion-at-point-functions #'yasnippet-capf)
 (add-to-list 'completion-at-point-functions #'cape-file)
