@@ -40,19 +40,20 @@
 (marginalia-mode)
 (require 'doom-snippets)
 (yas-global-mode)
+(setq tab-always-indent 'complete)
 (custom-set-variables
- '(corfu-auto t)
+ ;; '(corfu-auto t)
  '(corfu-cycle t))
 (add-to-list 'completion-at-point-functions #'yasnippet-capf)
 (add-to-list 'completion-at-point-functions #'cape-file)
-(add-to-list 'completion-at-point-functions #'cape-line)
+;; (add-to-list 'completion-at-point-functions #'cape-line)
 (add-to-list 'completion-at-point-functions #'cape-keyword)
 (eldoc-add-command #'corfu-insert)
 (global-corfu-mode)
 (corfu-prescient-mode)
 (corfu-popupinfo-mode 1)
 (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
-
+(require 'ranger)
 ;; file handling
 (custom-set-variables '(dired-listing-switches "-agho --group-directories-first")
 		      '(ranger-override-dired t)
@@ -87,7 +88,6 @@
 
 (custom-set-variables '(treesit-auto-install 'prompt))
 (global-treesit-auto-mode)
-(dashboard-setup-startup-hook)
 
 ;; Set all the tree-sitter modes
 (dolist (mode '(dart-mode-hook
@@ -139,7 +139,7 @@
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
   ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
+  (dolist (face '((org-level-1 . 1.3)
                   (org-level-2 . 1.1)
                   (org-level-3 . 1.05)
                   (org-level-4 . 1.0)
@@ -147,17 +147,39 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "JetBrainsMono Nerd Font" :weight 'regular :height (cdr face))))
-
+    (set-face-attribute (car face) nil :font "JetBrains Mono" :weight 'regular :height (cdr face)))
+  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
 (require 'org-habit)
+(require 'evil-org-agenda)
+(evil-org-agenda-set-keys)
+
 (add-to-list 'org-modules 'org-habit)
 (setq org-ellipsis "{...}▾"
       org-agenda-start-with-log-mode t
       org-habit-graph-column 60)
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 (add-hook 'org-mode-hook #'toc-org-mode)
+(add-hook 'org-mode-hook #'org-appear-mode)
+(add-hook 'org-mode-hook #'evil-org-mode)
 (global-org-modern-mode)
 
+(defun conf/org-init ()
+  (org-indent-mode)
+  (visual-line-mode))
+
+(add-hook 'org-mode-hook #'conf/org-init)
+
+(conf/org-font-setup)
 
 (define-key evil-insert-state-map (kbd "C-`") 'evil-normal-state)
 (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
@@ -231,8 +253,14 @@
   "h v" '(describe-variable :wk "[H]elpful Describe [v]ariable"))
 
 (evil-define-key 'insert 'prog-mode-map (kbd "C-SPC") #'completion-at-point)
-(evil-define-key 'insert 'corfu-map (kbd "<tab>") #'corfu-next)
-(evil-define-key 'insert 'corfu-map (kbd "<backtab>") #'corfu-previous)
+
+(general-def
+  :keymaps 'completion-in-region-mode
+  :states 'insert
+  :definer 'minor-mode
+  :predicate 'corfu-mode
+  "<tab>" 'corfu-next
+  "<backtab>" 'corfu-previous)
 
 (keys/leader
   "c" '(:wk "Code")
@@ -250,3 +278,23 @@
   "t" '(:wk "Toggleables")
   "t t" '(vterm-toggle-cd :wk "Toggle Terminal"))
 
+
+(setq dashboard-banner-logo-title "Jester's Playground"
+      dashboard-center-content t
+      dashboard-startup-banner (expand-file-name "logo.png" user-emacs-directory)
+      dashboard-navigation-cycle t
+      dashboard-display-icons-p t
+      dashboard-set-heading-icons t
+      dashboard-set-file-icons t
+      dashboard-icon-type 'nerd-icons
+      dashboard-startupify-list '(dashboard-insert-banner
+                                  dashboard-insert-newline
+                                  dashboard-insert-banner-title
+                                  dashboard-insert-newline
+                                  dashboard-insert-navigator
+                                  dashboard-insert-newline
+                                  dashboard-insert-init-info
+                                  dashboard-insert-items
+                                  dashboard-insert-newline
+                                  dashboard-insert-footer))
+(dashboard-setup-startup-hook)
